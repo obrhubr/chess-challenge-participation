@@ -33,6 +33,7 @@ namespace ChessChallenge.Application
             //TimeSim();
         }
 
+        // Simulating the effects of time management with the bot
         public static void TimeSim()
         {
             var Times = new List<(int, int)> { 
@@ -81,6 +82,7 @@ namespace ChessChallenge.Application
             File.WriteAllText("../../../../thinking-time/data.csv", csv);
         }
 
+        // Get the evaluation for a static FEN string
         public static void GetEvaluation()
         {
             var fen = "1k6/P3n3/5p2/1KR4P/P7/2N5/5r2/8 b - - 0 67";
@@ -91,6 +93,7 @@ namespace ChessChallenge.Application
                 "Best Move: " + VersionHelper.getLatestEval().Think(board, new API.Timer(10000)).ToString());
         }
 
+        // UCI interface
         public static void UCI()
         {
             var engine = new UciEngine();
@@ -102,6 +105,7 @@ namespace ChessChallenge.Application
             }
         }
 
+        // Train the weights with GA
         public static void Training(string[] args)
         {
             var trainer = new Training();
@@ -114,6 +118,7 @@ namespace ChessChallenge.Application
             ConsoleHelper.Log("Finished execution in " + (totalTime.ElapsedMilliseconds - begin).ToString() + " ms.");
         }
 
+        // Test if the bot manages to checkmate different positions
         public static void CheckMates(string[] args)
         {
             List<string> fens = new List<string>{
@@ -150,6 +155,7 @@ namespace ChessChallenge.Application
             Console.WriteLine("Latest wins: " + controller.BotStatsA.NumWins + " Previous Wins: " + controller.BotStatsB.NumWins);
         }
 
+        // Test the bots without GUI
         public static void Benchmark(string[] args)
         {
             Stopwatch totalTime = Stopwatch.StartNew();
@@ -173,6 +179,7 @@ namespace ChessChallenge.Application
             ToJson(games.ToList(), numGames, (totalTime.ElapsedMilliseconds - begin));
         }
 
+        // Test the bots without GUI in Parrallel
         public static void BenchmarkParallel(string[] args)
         {
             Stopwatch totalTime = Stopwatch.StartNew();
@@ -200,6 +207,25 @@ namespace ChessChallenge.Application
             ToJson(games.ToList(), parallelGames * gamesPerThread, (totalTime.ElapsedMilliseconds - begin));
         }
 
+        // Run games and collect statistics
+        static (BenchmarkController.BotMatchStats, BenchmarkController.BotMatchStats) runGames(string[] fens, (ChallengeController.PlayerType, ChallengeController.PlayerType) bots)
+        {
+            BenchmarkController controller = new(fens);
+
+            controller.StartNewBotMatch(bots.Item1, bots.Item2);
+            Stopwatch sw = Stopwatch.StartNew();
+            var now = sw.ElapsedMilliseconds / 1000.0d;
+
+            while (controller.CurrGameNumber <= fens.Length)
+            {
+                controller.Update((sw.ElapsedMilliseconds / 1000.0d) - now);
+                now = sw.ElapsedMilliseconds / 1000.0d;
+            }
+
+            return (controller.BotStatsA, controller.BotStatsB);
+        }
+
+        // Convert Game stats to JSON
         static void ToJson(List<(BenchmarkController.BotMatchStats, BenchmarkController.BotMatchStats)> runs, int NumGames, long RunTime)
         {
             string botNames = runs.First().Item1.BotName.ToString() + "_" + runs.First().Item2.BotName.ToString();
@@ -254,23 +280,6 @@ namespace ChessChallenge.Application
             public int NumTimeouts { get; set; }
             public int NumLosses { get; set; }
             public int NumIllegalMoves { get; set; }
-        }
-
-        static (BenchmarkController.BotMatchStats, BenchmarkController.BotMatchStats) runGames(string[] fens, (ChallengeController.PlayerType, ChallengeController.PlayerType) bots)
-        {
-            BenchmarkController controller = new(fens);
-
-            controller.StartNewBotMatch(bots.Item1, bots.Item2);
-            Stopwatch sw = Stopwatch.StartNew();
-            var now = sw.ElapsedMilliseconds / 1000.0d;
-
-            while (controller.CurrGameNumber <= fens.Length)
-            {
-                controller.Update((sw.ElapsedMilliseconds / 1000.0d) - now);
-                now = sw.ElapsedMilliseconds / 1000.0d;
-            }
-
-            return (controller.BotStatsA, controller.BotStatsB);
         }
 
         public static void Graphical()

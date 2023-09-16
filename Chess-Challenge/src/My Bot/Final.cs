@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-// Reduce size
-class MyBot_v8_0_1
+// Reduce size and submit final version
+class Final
 {
     // The value of: null, pawn, knight, bishop, rook, queen, king
     double[] PieceValues = { 0, 1.0, 3, 3, 4.5, 8, 0 };

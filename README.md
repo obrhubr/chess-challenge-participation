@@ -1,20 +1,27 @@
 # Chess Challenge
 
-A Chess-AI is something of a rite of passage for every software engineer, as is a snake clone or a calculator console application. If you did not try to build one yet, you are certainly missing out (or preserving your own sanity, whatever you prefer). Between the [chessprogrammingwiki.org](https://www.chessprogramming.org/Main_Page) and [ccrl.chessdom.com](https://ccrl.chessdom.com/) this is now a pretty well explored field, but that is not to say that innovation is impossible and nothing changed since the days of Deep Blue. 
+This is my entry for Sebastian Lague's [competition](https://www.youtube.com/watch?v=iScy18pVR58) that imposes an arbitrary limit on the length of your engines code. To be exact every participant has a maximum of 1024 tokens at his disposal to craft the best chess bot they can. Sounds like a lot, or extremely little depending of your conception of tokens. In this case a token is the smallest unit the compiler can see, with some exceptions. Therefore your 28 character Java like variable `ChessEngineBotThinkingBoardGamePiecePlayerMoverFactory` will only count as a single token, while `{` also counts as one. You also cannot load external files or use certain functions to extract variable names, which is enforced by limiting the allowed namespaces.
 
-In recent years Stockfish, the most advanced computer chess engine, has gotten a major upgrade in the form of a NNUE, a fast neural network of sorts which is used as it’s evaluation function.
+I wanted to submit a bot which uses an innovative technique to try and win the competition (not by creating the best bot but rather by creating the most innovative bot). To that end I started by implementing a basic chess bot, using all the tried and tested techniques (Minimax, quiescence search, search extensions and transposition tables).
 
-Today I would group chess engines into two categories: “going as deep as possible as fast as possible” (Stockfish) and “Have a very sophisticated evaluation function in the form of a neural network” (Leela Chess Zero). Currently the first approach seems to work out better, but that is not to say it will forever.
+This did sadly not work out, but I learned a lot along the way.
 
-## What is left for amateurs, such as myself then?
+In this article:
+ - [Implementing and debugging a chess engine](#Building-a-chess-computer)
+ - [Trying to innovate and failing (using a Genetic Algorithm)](#Fine-tuning-the-evaluation-using-a-Genetic-Algorithm)
+ - [Trying again and failing again (using statistics)](#Using-Statistics-to-create-a-perfect-evaluation-function)
 
-Sebastian Lague has the perfect answer to that question: a [competition](https://www.youtube.com/watch?v=iScy18pVR58) that imposes an arbitrary limit on the length of your engines code. To be exact every participant has a maximum of 1024 tokens at his disposal to craft the best chess bot they can. Sounds like a lot, or extremely little depending of your conception of tokens. In this case a token is the smallest unit the compiler can see, with some exceptions. Therefore your 28 character Java like variable `ChessEngineBotThinkingBoardGamePiecePlayerMoverFactory` will only count as a single token, while `{` also counts as one. You also cannot load external files or use certain functions to extract variable names, which is enforced by limiting the allowed namespaces.
+## Building a chess computer
 
-## Building a base engine to innovate upon
+### Minimax
 
-TODO: minimax
+### Building a tool to debug the bot
 
-## Stage 1: Use a Genetic Algorithm to create a perfect evaluation function
+### Quiescence Search and Search Extensions
+
+### Time Management and Early Exit
+
+## Fine tuning the evaluation using a Genetic Algorithm
 
 This limitation, you would assume, hampers the addition of complex evaluation functions, but also prevents the implementation of any neural networks or similar structures necessary for chess engines of the second type described above. 
 
@@ -64,7 +71,7 @@ Plugging in the values of the best models produced mediocre results, even agains
 
 I quickly realised the issue with my approach: distilling the knowledge stored in the [NNUE](https://tests.stockfishchess.org/nns), which is pretty small but still about 50MBs large, into only 24576 values was too much. The loss of context that my implementation produced was crippling it’s ability, because the different boards for each piece that make up the model do not consider the position relative to other pieces. Moving the queen to c6 would be evaluated as equally good, whether it blundered the queen to a pawn or delivered a beautiful checkmate.
 
-## Stage 2: Use statistics to create a perfect evaluation function
+## Using Statistics to create a perfect evaluation function
 
 ### The Idea
 
@@ -83,11 +90,3 @@ Why? Because when evaluating fitness we would first get the difference of the ac
 ### Implementing the statistical evaluation
 
 ### Disappointing results
-
-## Stage 3: Implement the tried and trusted algorithms
-
-### Building a tool to debug the bot
-
-### Quiescence Search and Search Extensions
-
-### Time Management and Early Exit
