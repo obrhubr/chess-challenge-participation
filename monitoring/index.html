@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet"
+      href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
+      integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU"
+      crossorigin="anonymous">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.js"></script>
+</head>
+<body class="bg-gray-800 text-white">
+    <div class="flex flex-row">
+        <div class="m-4 flex flex-col items-center">
+            <div class="py-2 px-3 text-white text-lg font-semibold">
+                Current State:
+            </div>
+            <div id="mainboard" style="width: 500px"></div>
+            <div class="py-2 px-3 text-white text-md">
+                <span class="text-white"><a class="underline hover:text-slate-200 hover:cursor-pointer" target="_blank" id="fenlinkmain">FEN:</a> </span>
+                <span class="text-slate-400" id="mainfen"></span>
+            </div>
+            <div class="py-2 px-3 text-white text-md">
+                <span class="text-white"><a class="underline hover:text-slate-200 hover:cursor-pointer" target="_blank" id="pgnlinkmain">PGN:</a> </span>
+                <span class="text-slate-400" id="mainpgn"></span>
+            </div>
+            <div class="flex flex-col w-1/2">
+                <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                    Depth reached this Iteration: <span class="text-slate-400" id="depth"></span>
+                </div>
+                <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                    Total Nodes Traversed this Iteration: <span class="text-slate-400" id="nodes"></span>
+                </div>
+                <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                    Time passed this iteration:  <span class="text-slate-400" id="time"></span>
+                </div>
+            </div>
+        </div>
+        <div class="ml-8 flex flex-col">
+            <div class="mx-4 flex flex-col">
+                <div class="py-2 px-3 text-white text-md font-semibold flex flex-row flex-wrap">
+                    <div class="my-2 mx-0 py-2 pr-3 text-white text-sm font-semibold font-normal">Select which depth: </div><div class="flex flex-row flex-wrap" id="depths"></div> 
+                </div>
+            </div>
+            <div class="mx-4 basis-1/2 flex flex-col">
+                <div class="py-2 px-3 text-white text-lg font-semibold">
+                    Statistics 
+                </div>
+                <div class="ml-4 flex flex-row flex-wrap">
+                    <div class="flex flex-col w-1/2">
+                        <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                            Percentage of Hash Usage for setting alpha & beta:  <span class="text-slate-400" id="hashusage"></span> %
+                        </div>
+                        <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                            Percentage of Hash Usage for full evaluation:  <span class="text-slate-400" id="hashusagefull"></span> %
+                        </div>
+                        <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                            Percent of Transposition Table Memory used:  <span class="text-slate-400" id="hashmemory"></span> %
+                        </div>
+                    </div>
+                    <div class="flex flex-col w-1/2">
+                        <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                            Calls to QuiescenceSearch:  <span class="text-slate-400" id="quiescence"></span>
+                        </div>
+                        <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                            Extensions:  <span class="text-slate-400" id="extensions"></span>
+                        </div>
+                        <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                            Moves searched less deeply:  <span class="text-slate-400" id="lessdeeply"></span>
+                        </div>
+                        <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                            Failed less deep searches :  <span class="text-slate-400" id="lessdeeplyfailed"></span> %
+                        </div>
+                    </div>
+                    <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow w-full flex flex-col h-40">
+                        Full Hash Usage / depth: (Log scale)
+                        <div class="flex flex-row text-xs font-normal items-end h-full" id="hashusagefulldepth"></div>
+                        <div class="flex flex-row text-xs font-normal items-center h-full" id="hashusagefulldepthnums"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="m-4 basis-1/2 flex flex-col">
+                <div class="py-2 px-3 text-white text-lg font-semibold">
+                    Moves 
+                </div>
+                <div class="flex flex-row">
+                    <div class="basis-1/2 flex flex-col items-center">
+                        <div id="secboard" style="width: 300px"></div>
+                        <div class="py-2 px-3 text-white text-md">
+                            <span class="text-white"><a class="underline hover:text-slate-200 hover:cursor-pointer" target="_blank" id="fenlinksec">FEN:</a> </span>
+                            <span class="text-slate-400" id="secfen"></span>
+                        </div>
+                        <div class="py-2 px-3 text-white text-md">
+                            <span class="text-white"><a class="underline hover:text-slate-200 hover:cursor-pointer" target="_blank" id="pgnlinksec">PGN:</a> </span>
+                            <span class="text-slate-400" id="secpgn"></span>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                            Best Move: <span class="text-slate-400" id="bestmove"></span>
+                        </div>
+                        <div id="eval" class="m-2 py-2 px-3 bg-gray-700 text-slate-400 text-sm font-semibold rounded-md shadow">
+                            Evaluation: <span class="text-slate-400" id="besteval"></span>
+                        </div>
+                        <div class="m-2 py-2 px-3 bg-gray-700 text-white text-sm font-semibold rounded-md shadow">
+                            Sequence: <span class="text-slate-400" id="sequence"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
+        integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
+        crossorigin="anonymous"></script>
+    <img src="https://chessboardjs.com/img/chesspieces/wikipedia/wP.png" id="4ff0-86f0-ab6a-587a-730b-cef8-e001-5dea" alt="" class="piece-417db" data-piece="wP" style="width: 49px; height: 49px; display: none;">
+    <script type="module">
+        function msToTime(s) {
+            var ms = s % 1000;
+            s = (s - ms) / 1000;
+            var secs = s % 60;
+            s = (s - secs) / 60;
+            var mins = s % 60;
+            var hrs = (s - mins) / 60;
+
+            return hrs + 'h ' + mins + 'm ' + secs + '.' + ms + 's';
+        }
+
+        const processData = (i) => {
+            fetch("data.json").then((data) => {
+                data.json().then((json) => {
+
+                    // Add buttons to switch depths
+                    const depthsButtonDiv = document.getElementById("depths");
+                    depthsButtonDiv.innerHTML = "";
+                    json.stats.forEach((e, i) => {
+                        const button = document.createElement('button');
+                        button.className = "m-2 py-2 px-3 bg-gray-700 text-white text-xs font-normal rounded-md shadow"
+
+                        button.onclick = () => { processData(i) }
+                        button.innerText = "Depth " + e.depth;
+                        depthsButtonDiv.appendChild(button);
+                    })
+
+                    if (i == -1) i = json.stats.length - 1;
+                    let jsonData = json.stats[i];
+
+                    // Set main board data
+                    let mainboard = Chessboard('mainboard', jsonData.fen)
+                    document.getElementById("mainfen").innerText = jsonData.fen;
+                    document.getElementById("fenlinkmain").href = "https://lichess.org/analysis/standard/" + jsonData.fen.replace(" ", "_");
+                    if (jsonData.pgn) {
+                        document.getElementById("mainpgn").innerText = jsonData.pgn;
+                        document.getElementById("pgnlinkmain").href = "https://lichess.org/analysis/pgn/" + jsonData.pgn.split("]")[jsonData.pgn.split("]").length - 1];
+                    }
+
+                    // Set secondary sequence board data
+                    // Get fen from PGN
+                    if (jsonData.sequencePGN) {
+                        const chess = new Chess()
+                        chess.load_pgn(jsonData.sequencePGN.split("]")[jsonData.sequencePGN.split("]").length - 1]);
+                        //document.getElementById("secpgn").innerText = jsonData.sequencePGN;
+                        document.getElementById("pgnlinksec").href = "https://lichess.org/analysis/pgn/" + jsonData.sequencePGN.split("]")[jsonData.sequencePGN.split("]").length - 1] + "#" + (chess.history().length - jsonData.sequence.length);
+                        const secfen = chess.fen();
+                        let secboard = Chessboard('secboard', secfen);
+                        document.getElementById("secfen").innerText = secfen;
+                        document.getElementById("fenlinksec").href = "https://lichess.org/analysis/standard/" + secfen.replace(" ", "_");
+                    }
+
+                    // Set stats
+                    document.getElementById("depth").innerText = jsonData.depth;
+                    document.getElementById("nodes").innerText = jsonData.nodesTraversed;
+
+                    let hashUsage = Math.round(jsonData.hashUsage / jsonData.nodesTraversed * 100 * 10) / 10;
+                    document.getElementById("hashusage").innerText = hashUsage;
+                    if (hashUsage < 50) { document.getElementById("hashusage").classList.add("text-green-500") } else { document.getElementById("hashusage").classList.add("text-red-500") };
+
+                    let hashUsageFull = Math.round(jsonData.hashUsageFull / jsonData.nodesTraversed * 100 * 10) / 10;
+                    document.getElementById("hashusagefull").innerText = hashUsageFull;
+                    if (hashUsage < 50) { document.getElementById("hashusagefull").classList.add("text-green-500") } else { document.getElementById("hashusagefull").classList.add("text-red-500") };
+
+                    // Set new algo stats
+                    document.getElementById("quiescence").innerText = jsonData.quiescence;
+                    document.getElementById("extensions").innerText = jsonData.extensions;
+                    document.getElementById("lessdeeply").innerText = jsonData.lessdeeply;
+                    let lessdeeplyfailed = Math.round(jsonData.lessdeeplyfailed / jsonData.lessdeeply * 100 * 10) / 10;
+                    document.getElementById("lessdeeplyfailed").innerText = lessdeeplyfailed;
+                    if (hashUsage < 50) { document.getElementById("lessdeeplyfailed").classList.add("text-green-500") } else { document.getElementById("lessdeeplyfailed").classList.add("text-red-500") };
+                    
+                    const hashUsageFullDepth = document.getElementById("hashusagefulldepth");
+                    hashUsageFullDepth.innerHTML = "";
+                    const hashUsageFullDepthText = document.getElementById("hashusagefulldepthnums");
+                    hashUsageFullDepthText.innerHTML = "";
+                    const max = Math.log(Math.max(...jsonData.hashUsageFullDepths));
+                    jsonData.hashUsageFullDepths.forEach((e, i) => {
+                        const span = document.createElement('span');
+                        //span.innerText = e;
+                        span.className = "bg-white rounded-lg shadow-md relative w-4 mx-2";
+                        if (e != 0) {
+                            const logScale = Math.round(Math.log(e) / max * 10);
+                            span.style.height = logScale != 0 ? logScale * 10 + 'px' : 2 + 'px';
+                        } else { span.style.height = 1 + 'px'; }
+                        hashUsageFullDepth.appendChild(span);
+
+                        // Text
+                        const textspan = document.createElement('span');
+                        textspan.className = "w-4 max-w-4 mx-2 rotate-90";
+                        textspan.innerText = e;
+                        hashUsageFullDepthText.appendChild(textspan);
+                    });
+
+                    // Divide permilli by 10 to get percent
+                    document.getElementById("hashmemory").innerText = jsonData.hashMillis / 10;
+                    if (jsonData.hashMillis > 9000) { document.getElementById("hashmemory").classList.add("text-red-500") } else { document.getElementById("hashmemory").classList.add("text-green-500") };
+                    
+                    document.getElementById("time").innerText = msToTime(jsonData.time);
+
+                    // set moves
+                    document.getElementById("bestmove").innerText = jsonData.bestMove;
+                    document.getElementById("besteval").innerText = (Math.sign(jsonData.evaluation) == 1 ? '+' : '') + Math.round(jsonData.evaluation * 100) / 100;
+                    if (jsonData.evaluation > 0) { document.getElementById("eval").classList.add("bg-white") } else { document.getElementById("eval").classList.add("bg-black") };
+                    
+                    document.getElementById("sequence").innerText = jsonData.sequence.join(" ");
+                });
+            });
+        };
+
+        processData(-1);
+    </script>
+</body>

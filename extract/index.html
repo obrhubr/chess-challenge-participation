@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<head>
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 50px);
+            grid-template-rows: repeat(8, 50px);
+            justify-content: center;
+            margin: auto;
+            padding-top: 50px;
+        }
+
+        .board div {
+            border: 1px solid black;
+            background-color: white;
+        }
+
+        .title {
+            padding-left: 50%;
+            font-size: x-large;
+        }
+    </style>
+    <script>
+        function getRgb(color) {
+            let [r, g, b] = color.replace('rgb(', '')
+                .replace(')', '')
+                .split(',')
+                .map(str => Number(str));;
+            return {
+                r,
+                g,
+                b
+            }
+        }
+
+        function colorInterpolate(colorA, colorB, intval) {
+            const rgbA = getRgb(colorA),
+                rgbB = getRgb(colorB);
+            const colorVal = (prop) =>
+                Math.round(rgbA[prop] * (1 - intval) + rgbB[prop] * intval);
+            return {
+                r: colorVal('r'),
+                g: colorVal('g'),
+                b: colorVal('b'),
+            }
+        }
+        fetch("weights.json").then((data) => {
+            data.json().then((jsonData) => {
+                var multis = ["MultiplierPawns", "MultiplierKnights", "MultiplierBishops", "MultiplierRooks", "MultiplierQueens", "MultiplierKing"]
+                multis.forEach((b) => {
+                    var divs = document.getElementsByClassName(b)[0].children;
+                    var max = 0;
+                    if (jsonData.Weights[b] != null) {
+                        jsonData.Weights[b].forEach((e, i) => {
+                            max = Math.max(max, Math.abs(e));
+                        });
+                        jsonData.Weights[b].forEach((e, i) => {
+                            var color = colorInterpolate("rgb(255, 255, 255)", "rgb(2, 112, 171)", (e+max) / (max*2));
+                            console.log(e / max + 1.0)
+                            divs[i].style.backgroundColor = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+                            divs[i].innerHTML = e.toFixed(2);
+                        });
+                    }
+                })
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="title">
+        MultiplierPawns
+    </div>
+    <div class="MultiplierPawns board">
+        <div></div><div></div><div></div><div></div><div></div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>         
+    </div>
+    <div class="title">
+        MultiplierKnights
+    </div>
+    <div class="MultiplierKnights board">
+        <div></div><div></div><div></div><div></div><div></div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>         
+    </div>
+    <div class="title">
+        MultiplierBishops
+    </div>
+    <div class="MultiplierBishops board">
+        <div></div><div></div><div></div><div></div><div></div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>         
+    </div>
+    <div class="title">
+        MultiplierRooks
+    </div>
+    <div class="MultiplierRooks board">
+        <div></div><div></div><div></div><div></div><div></div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>         
+    </div>
+    <div class="title">
+        MultiplierQueens
+    </div>
+    <div class="MultiplierQueens board">
+        <div></div><div></div><div></div><div></div><div></div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>         
+    </div>
+    <div class="title">
+        MultiplierKing
+    </div>
+    <div class="MultiplierKing board">
+        <div></div><div></div><div></div><div></div><div></div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>         
+    </div>
+</body>
