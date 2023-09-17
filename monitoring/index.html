@@ -219,7 +219,13 @@
                     // set moves
                     document.getElementById("bestmove").innerText = jsonData.bestMove;
                     document.getElementById("besteval").innerText = (Math.sign(jsonData.evaluation) == 1 ? '+' : '') + Math.round(jsonData.evaluation * 100) / 100;
-                    if (jsonData.evaluation > 0) { document.getElementById("eval").classList.add("bg-white") } else { document.getElementById("eval").classList.add("bg-black") };
+                    if (jsonData.evaluation > 0) { 
+                        document.getElementById("eval").classList.remove("bg-black") 
+                        document.getElementById("eval").classList.add("bg-white") 
+                    } else { 
+                        document.getElementById("eval").classList.remove("bg-white") 
+                        document.getElementById("eval").classList.add("bg-black") 
+                    };
                     
                     document.getElementById("sequence").innerText = jsonData.sequence.join(" ");
                 });
