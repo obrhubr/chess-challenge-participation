@@ -1,3 +1,7 @@
+<p align="center">
+	<img alt="Logo" src=".github/images/logo.png" data-canonical-src=".github/images/logo.png" width="200"/>
+</p>
+
 # Chess Challenge
 
 This is my entry for Sebastian Lague's [competition](https://www.youtube.com/watch?v=iScy18pVR58) that imposes an arbitrary limit on the length of your engines code. To be exact every participant has a maximum of 1024 tokens at his disposal to craft the best chess bot they can. Sounds like a lot, or extremely little depending of your conception of tokens. In this case a token is the smallest unit the compiler can see, with some exceptions. Therefore your 28 character Java like variable `ChessEngineBotThinkingBoardGamePiecePlayerMoverFactory` will only count as a single token, while `{` also counts as one. You also cannot load external files or use certain functions to extract variable names, which is enforced by limiting the allowed namespaces.
@@ -129,21 +133,31 @@ My simulation outputs a projected evolution of the time allocated to calculate t
 
 ## Fine tuning the evaluation using a Genetic Algorithm
 
-This limitation, you would assume, hampers the addition of complex evaluation functions, but also prevents the implementation of any neural networks or similar structures necessary for chess engines of the second type described above. 
+This limitation, you would assume, hampers the addition of complex evaluation functions and also prevents the implementation of any neural networks or similar structures necessary for chess engines of the second type described above. 
 
 My first instinct therefore was to do something akin to knowledge distillation, inspired by the NNUE of Stockfish. It uses the current board as an input and by applying the weights and biases of the net it comes up with a number. If, instead of using a complex network, we used a single 64x64 grid of values for each type of piece, we could distill the game knowledge of powerful engines into a very small number of bytes. This evaluation function could then still be “plug and play” with a traditional Minimax engine.
 
-![Visual illustration of the bitboards]()
+<p align="center">
+	<img alt="NNUE vs our model" src=".github/images/nnuevsmy.png" data-canonical-src=".github/images/nnuevsmy.png" width="800"/>
+</p>
 
 ### The Idea
 
-The idea is very simple at it’s core. We would assigne a value to every square of the board a piece could stand on, and do that for every type of piece. To evaluate a position, we would only need to add the value of the squares every piece stands on. For example, a pawn is worth more, the further it moves up the board and the closer it comes to becoming a queen. Therefore we would assigne higher values to the squares further up the board, up to nearly the value of a queen on the seventh rank.
+The idea is very simple at it’s core. We would assigne a value to every square of the board a piece could stand on, and do that for every type of piece. To evaluate a position, we would only need to add the value of the squares every piece stands on. 
 
-![Illustration of pawn values]()
+For example, a pawn is worth more, the further it moves up the board and the closer it comes to becoming a queen. Therefore we would assigne higher values to the squares further up the board, up to nearly the value of a queen on the seventh rank.
 
-![Code block of piece value bitboards]()
+<p align="center">
+	<img alt="Naive values for the pawn weights" src=".github/images/pawnvalues.png" data-canonical-src=".github/images/pawnvalues.png" width="200"/>
+</p>
 
-For the implementation, we would need to save the values of each square to an array. When evaluating, we get back a bitboard representing the different pieces on the board as an array, and use a bitwise and operation to multiply it and the “model” together (I will refer to a the boards with values for each square that the genetic algorithm outputs as a model from here on out). The result would be a board with only the values of the squares left, that have a piece currently standing on them. Summing the values of the 6 different boards (6 piece types: pawn, knight, bishop, rook, queen, king) together for each player and substracting them gives us a value in the format of the classic stockfish evaluation: `-1.5` for example to represent black winning by a certain margin, `+7.9` to represent white having a very powerful advantage.
+For the implementation, we would need to save the values of each square to an array. When evaluating, we get back a bitboard representing the different pieces on the board as an array, and use a bitwise and operation to multiply it and the “model” together (I will refer to a the boards with values for each square that the genetic algorithm outputs as a model from here on out). The result would be a board with only the values of the squares left, that have a piece currently standing on them. We would then take the sum of these values and get a single score back. 
+
+<p align="center">
+	<img alt="Scoring a board by creating a bitboard representation, multiplying with weights and taking the sum" src=".github/images/board-bitboard-weights-eval-process.png" data-canonical-src=".github/images/board-bitboard-weights-eval-process.png" width="800"/>
+</p>
+
+Taking the sum of the scores from the 6 different boards (6 piece types: pawn, knight, bishop, rook, queen, king) together for each player and substracting them gives us a value in the format of the classic stockfish evaluation: `-1.5` for example to represent black winning by a certain margin, `+7.8` to represent white having a very powerful advantage.
 
 ### Implementing the genetic algorithm and training
 
@@ -151,31 +165,57 @@ The question that remains is that of setting the value for each of the squares o
 
 Genetic algorithms on the contrary don’t use these more sophisticated techniques, and just mutate the values of the boards randomly between generations, always selecting the best of the current generation. Our training would therefore look something like this: we instantiate the model with randomly selected numbers between some boundary. We then evaluate these “weights” to assign a fitness to each and at the end, we select the very best. We then slightly but still randomly mutate the values to create 500 or more children and assign a fitness to each again. 
 
-![Illustration genetic algorithm]()
+<p align="center">
+	<img alt="The genetic algorithm" src=".github/images/ga.png" data-canonical-src=".github/images/ga.png" width="500"/>
+</p>
 
 We repeat this for a few hundred generations and we would be left with a single model that has been optimized for the fitness function. 
 
-Now we have the issue of defining an appropriate fitness function, to make sure we really chose the models that have the best chance of producing accurate evaluations. To do this I downloaded a large number of lichess and chess engine games from the internet in PGN format. PGN stands for “portable game notation” and it encodes chess games into a series of moves with a bit of metadata.
+Now we have the issue of defining an appropriate fitness function, to make sure we really chose the models that have the best chance of producing accurate evaluations. To do this I downloaded a large number of lichess and chess engine games from the internet in PGN format. PGN stands for “portable game notation” and it encodes chess games into a series of moves with a bit of metadata (`[%eval ...]` is of interest here).
 
-![PGN game  with evaluation]()
+```pgn
+[Event "F/S Return Match"]
+...
+[White "Fischer, Robert J."]
+[Black "Spassky, Boris V."]
+[Result "1/2-1/2"]
+
+1. e4 { [%eval 0.17] [%clk 0:00:30] } 1... c5 { [%eval 0.19] [%clk 0:00:30] } 
+2. Nf3 { [%eval 0.25] [%clk 0:00:29] } 2... Nc6 { [%eval 0.33] [%clk 0:00:30] } 
+[...]
+13. b3 $4 { [%eval -4.14] [%clk 0:00:02] } 13... Nf4 $2 { [%eval -2.73] [%clk 0:00:21] } 0-1
+
+```
 
 I then extracted the evaluation for each position and stored these for training, resulting in a few hundredths of thousands of lines of chess positions. This seemingly random string is actually a [FEN](https://de.wikipedia.org/wiki/Forsyth-Edwards-Notation) string, which stores the position of each chess pieces, therefore encoding the board. Paired with the evaluation that a powerful chess engine assigned to it, this was the perfect data set to train my own engine.
 
-![FEN position with eval]()
+```json
+{
+    "positions": [
+        {
+            "fen": "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+            "eval": 0.19
+        }
+}
+```
 
 The fitness function would consist of evaluating a position with the values of the boards that the current child - generated using the genetic algorithm - has and taking the difference of that and the actual evaluation of the position. To get the best child in a generation we would then take the one with the lowest overall score, indicating that it was the best at estimating the actual evaluation.
 
-![Illustration of training and fitness]()
+<p align="center">
+	<img alt="Training the model" src=".github/images/training.gif" data-canonical-src=".github/images/training.gif" width="500"/>
+</p>
 
 ### Disappointing results
 
 My enthusiasm for this idea quickly ebbed away very quickly once I realised how long training would take and also how bad the first dozen generations really were.
 
-Plugging in the values of the best models produced mediocre results, even against very weak opponents.
+Plugging in the values of the best models produced very bad results.
 
-![Losing bot with the GA]()
+<p align="center">
+	<img alt="Results of the GA trained model" src=".github/images/resultsga.png" data-canonical-src=".github/images/resultsga.png" width="500"/>
+</p>
 
-I quickly realised the issue with my approach: distilling the knowledge stored in the [NNUE](https://tests.stockfishchess.org/nns), which is pretty small but still about 50MBs large, into only 24576 values was too much. The loss of context that my implementation produced was crippling it’s ability, because the different boards for each piece that make up the model do not consider the position relative to other pieces. Moving the queen to c6 would be evaluated as equally good, whether it blundered the queen to a pawn or delivered a beautiful checkmate.
+I had to either conclude that the idea was flawed fundamentally, or that my training was not long enough to actually produce promising results.
 
 ## Using Statistics to create a perfect evaluation function
 
@@ -185,7 +225,9 @@ At the same time I also realised the futility of my genetic algorithm, which jus
 
 To illustrate the idea, consider a training set consisting of a single data point, a single FEN string associated to a single evaluation.
 
-![Board and FEN string of the example]()
+<p align="center">
+	<img alt="Getting the value using the average" src=".github/images/statistical.png" data-canonical-src=".github/images/statistical.png" width="800"/>
+</p>
 
 There is (although impossible in chess) a single white pawn standing on `a7` rank of the board. The evaluation is very high, at `+100.0` let’s say. To get the best fitness, the model would assign the value `+100.0` to the square `a7`.
 
@@ -195,4 +237,20 @@ Why? Because when evaluating fitness we would first get the difference of the ac
 
 ### Implementing the statistical evaluation
 
+Implementing this new algorithm was a matter of collecting the evaluations of every time there was a certain piece on a certain square and once there was enough data, calculating the median.
+
+<p align="center">
+	<img alt="Results using statistics to generate the weights" src=".github/images/final_statistical.png" data-canonical-src=".github/images/final_statistical.png" width="600"/>
+</p>
+
+Once I plugged these values into the Minimax framework and ran the bot, I was once again met with disappointment.
+
 ### Disappointing results
+
+There are two options left as to why this method of creating an evaluation function did not work. Either I did not have enough data, which skewed the weights of my model, or this method of distilling knowledge and extremely interdependant data onto 6 boards of 64 squares each simply lost too much context.
+
+# Conclusion
+
+Distilling the knowledge stored in the Stockfish [NNUE](https://tests.stockfishchess.org/nns) (which is the model that was used to create the evaluations my model was trained on), which is pretty small but still about 50MBs, into only 24576 values was too much. The loss of context that my implementation produced was crippling it’s ability, because the different boards for each piece that make up the model do not consider the position relative to other pieces. Moving the queen to c6 would be evaluated as equally good, whether it blundered the queen to a pawn or delivered a beautiful checkmate.
+
+There might be a smart way to compress more information into the boards (or "model inputs"), but that would require more code and also more model weights. And since the goal was to fit this into 1024 tokens of `C#` I had to be content with giving up.
