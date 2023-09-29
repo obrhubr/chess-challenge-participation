@@ -196,6 +196,7 @@ I then extracted the evaluation for each position and stored these for training,
             "fen": "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
             "eval": 0.19
         }
+	]
 }
 ```
 
