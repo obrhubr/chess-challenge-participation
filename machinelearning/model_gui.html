@@ -44,7 +44,7 @@
                 b: colorVal('b'),
             }
         }
-        fetch("weights.json").then((data) => {
+        fetch("./statistics/weights.json").then((data) => {
             data.json().then((jsonData) => {
                 var multis = ["MultiplierPawns", "MultiplierKnights", "MultiplierBishops", "MultiplierRooks", "MultiplierQueens", "MultiplierKing"]
                 multis.forEach((b) => {

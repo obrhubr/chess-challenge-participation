@@ -240,8 +240,15 @@ Why? Because when evaluating fitness we would first get the difference of the ac
 
 Implementing this new algorithm was a matter of collecting the evaluations of every time there was a certain piece on a certain square and once there was enough data, calculating the median.
 
+The following gifs show the evolution of the boards over time (in order: King, Queen, Rook, Bishop, Knight, Pawn):
+
 <p align="center">
-	<img alt="Results using statistics to generate the weights" src=".github/images/final_statistical.png" data-canonical-src=".github/images/final_statistical.png" width="600"/>
+	<img alt="Results using statistics to generate the weights" src=".github/videos/king.gif" width="200"/>
+	<img alt="Results using statistics to generate the weights" src=".github/videos/queen.gif" width="200"/>
+	<img alt="Results using statistics to generate the weights" src=".github/videos/rook.gif" width="200"/>
+	<img alt="Results using statistics to generate the weights" src=".github/videos/bishop.gif" width="200"/>
+	<img alt="Results using statistics to generate the weights" src=".github/videos/knight.gif" width="200"/>
+	<img alt="Results using statistics to generate the weights" src=".github/videos/pawn.gif" width="200"/>
 </p>
 
 Once I plugged these values into the Minimax framework and ran the bot, I was once again met with disappointment.

@@ -1,2 +1,4 @@
 stats/*
 /**/.DS_Store
+machinelearning/statistics/stats/*
+*.pgn
