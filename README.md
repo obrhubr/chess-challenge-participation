@@ -135,7 +135,7 @@ My simulation outputs a projected evolution of the time allocated to calculate t
 
 This limitation, you would assume, hampers the addition of complex evaluation functions and also prevents the implementation of any neural networks or similar structures necessary for chess engines of the second type described above. 
 
-My first instinct therefore was to do something akin to knowledge distillation, inspired by the NNUE of Stockfish. It uses the current board as an input and by applying the weights and biases of the net it comes up with a number. If, instead of using a complex network, we used a single 64x64 grid of values for each type of piece, we could distill the game knowledge of powerful engines into a very small number of bytes. This evaluation function could then still be “plug and play” with a traditional Minimax engine.
+My first instinct therefore was to do something akin to knowledge distillation, inspired by the NNUE of Stockfish. It uses the current board as an input and by applying the weights and biases of the net it comes up with a number. If, instead of using a complex network, we used a single 8x8 grid of values for each type of piece, we could distill the game knowledge of powerful engines into a very small number of bytes. This evaluation function could then still be “plug and play” with a traditional Minimax engine.
 
 <p align="center">
 	<img alt="NNUE vs our model" src=".github/images/nnuevsmy.png" data-canonical-src=".github/images/nnuevsmy.png" width="800"/>
@@ -143,9 +143,9 @@ My first instinct therefore was to do something akin to knowledge distillation, 
 
 ### The Idea
 
-The idea is very simple at it’s core. We would assigne a value to every square of the board a piece could stand on, and do that for every type of piece. To evaluate a position, we would only need to add the value of the squares every piece stands on. 
+The idea is very simple at it’s core. We would assign a value to every square of the board a piece could stand on, and do that for every type of piece. To evaluate a position, we would only need to add the value of the squares every piece stands on. 
 
-For example, a pawn is worth more, the further it moves up the board and the closer it comes to becoming a queen. Therefore we would assigne higher values to the squares further up the board, up to nearly the value of a queen on the seventh rank.
+For example, a pawn is worth more, the further it moves up the board and the closer it comes to becoming a queen. Therefore we would assign higher values to the squares further up the board, up to nearly the value of a queen on the seventh rank.
 
 <p align="center">
 	<img alt="Naive values for the pawn weights" src=".github/images/pawnvalues.png" data-canonical-src=".github/images/pawnvalues.png" width="200"/>
