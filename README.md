@@ -137,6 +137,8 @@ This limitation, you would assume, hampers the addition of complex evaluation fu
 
 My first instinct therefore was to do something akin to knowledge distillation, inspired by the NNUE of Stockfish. It uses the current board as an input and by applying the weights and biases of the net it comes up with a number. If, instead of using a complex network, we used a single 8x8 grid of values for each type of piece, we could distill the game knowledge of powerful engines into a very small number of bytes. This evaluation function could then still be “plug and play” with a traditional Minimax engine.
 
+(To anyone familiar with chess engine programming, this is essentially a [PST](https://www.chessprogramming.org/Piece-Square_Tables), a piece square table). What's new here is the way it's values will be adjusted.)
+
 <p align="center">
 	<img alt="NNUE vs our model" src=".github/images/nnuevsmy.png" data-canonical-src=".github/images/nnuevsmy.png" width="800"/>
 </p>
