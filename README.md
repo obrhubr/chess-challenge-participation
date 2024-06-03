@@ -4,6 +4,8 @@
 
 # Chess Challenge
 
+(View the blogpost at [obrhubr.org/chess-engine](https://obrhubr.org/chess-engine).)
+
 This is my entry for Sebastian Lague's [competition](https://www.youtube.com/watch?v=iScy18pVR58) that imposes an arbitrary limit on the length of your engines code. To be exact every participant has a maximum of 1024 tokens at his disposal to craft the best chess bot they can. Sounds like a lot, or extremely little depending of your conception of tokens. In this case a token is the smallest unit the compiler can see, with some exceptions. Therefore your 28 character Java like variable `ChessEngineBotThinkingBoardGamePiecePlayerMoverFactory` will only count as a single token, while `{` also counts as one. You also cannot load external files or use certain functions to extract variable names, which is enforced by limiting the allowed namespaces.
 
 I wanted to submit a bot which uses an innovative technique to try and win the competition (not by creating the best bot but rather by creating the most innovative bot). To that end I started by implementing a basic chess bot, using all the tried and tested techniques (Minimax, quiescence search, search extensions and transposition tables).
